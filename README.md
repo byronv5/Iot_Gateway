@@ -35,7 +35,7 @@ netsh advfirewall firewall add rule name="MiSwitch TCP" dir=in action=allow prot
 
 3. 用管理员 PowerShell 安装并启动 Windows 服务。服务名是 `DoorCtrl`，显示名为「巡检开关服务」，开机自启。
 
-安装时如果这台电脑解不开设备密钥，会要求输入原来的 32 位设备 Token。输入时屏幕不显示字符。不要用 `.s2` 或 `.s3` 子设备的 Token。Token 不随换电脑变化，只是在当前 Windows 用户下重新加密。服务固定用这个当前用户运行，接着会要求输入该用户的 Windows 密码，并授予该用户「以服务身份登录」。
+安装时如果这台电脑解不开设备密钥，会要求输入原来的 32 位设备Token，Token 不随换电脑变化，只是在当前 Windows 用户下重新加密。服务固定用这个当前用户运行，接着会要求输入该用户的 Windows 密码，并授予该用户「以服务身份登录」。
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\service.ps1 Install
