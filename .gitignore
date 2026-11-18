@@ -1,0 +1,5 @@
+lan.token
+mi-switch.credential.xml
+dist/
+__pycache__/
+*.pyc
