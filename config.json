@@ -2,5 +2,6 @@
   "deviceIp": "192.168.1.41",
   "deviceId": 305869963,
   "listenHost": "0.0.0.0",
-  "listenPort": 9753
+  "listenPort": 9753,
+  "openDelaySeconds": 6
 }

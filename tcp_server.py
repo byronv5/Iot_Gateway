@@ -9,6 +9,7 @@ import socketserver
 import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
 
 
@@ -40,6 +41,7 @@ def load_config() -> dict:
     device_id = data.get("deviceId")
     listen_host = data.get("listenHost")
     listen_port = data.get("listenPort")
+    open_delay = data.get("openDelaySeconds", 6)
     if not isinstance(device_ip, str) or not device_ip:
         raise SystemExit("config.json 的 deviceIp 无效")
     if isinstance(device_id, bool) or not isinstance(device_id, int) or device_id <= 0:
@@ -48,11 +50,14 @@ def load_config() -> dict:
         raise SystemExit("config.json 的 listenHost 无效")
     if isinstance(listen_port, bool) or not isinstance(listen_port, int) or not 1 <= listen_port <= 65535:
         raise SystemExit("config.json 的 listenPort 无效")
+    if isinstance(open_delay, bool) or not isinstance(open_delay, (int, float)) or open_delay < 0:
+        raise SystemExit("config.json 的 openDelaySeconds 无效")
     return {
         "deviceIp": device_ip,
         "deviceId": device_id,
         "listenHost": listen_host,
         "listenPort": listen_port,
+        "openDelaySeconds": float(open_delay),
     }
 
 
@@ -229,12 +234,13 @@ def _payload(text: str) -> dict:
 class SwitchServer(socketserver.TCPServer):
     allow_reuse_address = True
 
-    def __init__(self, token: str, worker: SwitchWorker, host: str, port: int) -> None:
+    def __init__(self, token: str, worker: SwitchWorker, host: str, port: int, open_delay_seconds: float = 0.0) -> None:
         super().__init__((host, port), SwitchHandler)
         self.lan_token = token
         self.worker = worker
         self.listen_host = host
         self.listen_port = port
+        self.open_delay_seconds = open_delay_seconds
 
     def server_close(self) -> None:
         self.worker.close()
@@ -261,7 +267,11 @@ class SwitchHandler(socketserver.StreamRequestHandler):
         if not isinstance(server, SwitchServer):
             raise RuntimeError("服务类型错误")
         try:
-            return server.worker.run(parse_request(line, server.lan_token))
+            action = parse_request(line, server.lan_token)
+            result = server.worker.run(action)
+            if action == "LeftOn" and result.get("ok") is True and server.open_delay_seconds > 0:
+                time.sleep(server.open_delay_seconds)
+            return result
         except ValueError as exc:
             return {"ok": False, "error": str(exc)}
         except subprocess.TimeoutExpired:
@@ -277,7 +287,13 @@ def open_server() -> SwitchServer:
     worker = SwitchWorker(config["deviceIp"], config["deviceId"])
     worker.start()
     try:
-        server = SwitchServer(load_token(), worker, config["listenHost"], config["listenPort"])
+        server = SwitchServer(
+            load_token(),
+            worker,
+            config["listenHost"],
+            config["listenPort"],
+            config["openDelaySeconds"],
+        )
     except Exception:
         worker.close()
         raise

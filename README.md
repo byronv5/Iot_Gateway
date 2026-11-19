@@ -53,7 +53,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
   "deviceIp": "192.168.1.41",
   "deviceId": 305869963,
   "listenHost": "0.0.0.0",
-  "listenPort": 9753
+  "listenPort": 9753,
+  "openDelaySeconds": 6
 }
 ```
 
@@ -61,6 +62,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
 - `deviceId`：开关的设备编号。
 - `listenHost`：保持 `0.0.0.0`，允许局域网内其他机器访问。
 - `listenPort`：TCP 监听端口，默认 `9753`。
+- `openDelaySeconds`：打开指令（`value: "on"`）确认开关开启后的额外延迟响应时间（秒），默认 `6`，用于等待电动门完全开启到位；设为 `0` 则不延迟。
 
 ### 第 5 步：用设备 Token 生成 `mi-switch.credential.xml`
 
