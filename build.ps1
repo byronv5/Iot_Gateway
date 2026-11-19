@@ -20,19 +20,18 @@ try {
         tcp_service.py
     if ($LASTEXITCODE -ne 0) { throw '打包失败。' }
     $built = Join-Path $work 'dist\DoorCtrl'
-    $destParent = Join-Path $PSScriptRoot 'dist'
-    $dest = Join-Path $destParent 'DoorCtrl'
+    $dest = Join-Path $PSScriptRoot 'dist'
     if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
-    New-Item $destParent -ItemType Directory -Force | Out-Null
-    Copy-Item $built $destParent -Recurse
+    New-Item $dest -ItemType Directory -Force | Out-Null
+    Copy-Item (Join-Path $built '*') $dest -Recurse -Force
 } finally {
     Pop-Location
 }
 foreach ($name in @('MiSwitch.ps1', 'config.json', 'service.ps1', 'test_switch.ps1')) {
-    Copy-Item (Join-Path $PSScriptRoot $name) (Join-Path $PSScriptRoot 'dist\DoorCtrl') -Force
+    Copy-Item (Join-Path $PSScriptRoot $name) $dest -Force
 }
 if (Test-Path (Join-Path $PSScriptRoot 'lan.token')) {
-    Copy-Item (Join-Path $PSScriptRoot 'lan.token') (Join-Path $PSScriptRoot 'dist\DoorCtrl') -Force
+    Copy-Item (Join-Path $PSScriptRoot 'lan.token') $dest -Force
 }
-Write-Output "已生成 $(Join-Path $PSScriptRoot 'dist\DoorCtrl')"
-Write-Output '把 dist\DoorCtrl 整个目录拷到目标电脑。目标电脑不用安装 Python，安装时会提示为当前用户重新加密设备 Token。'
+Write-Output "已生成 $dest"
+Write-Output '把 dist 整个目录拷到目标电脑。目标电脑不用安装 Python，安装时会提示为当前用户重新加密设备 Token。'

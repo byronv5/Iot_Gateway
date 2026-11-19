@@ -40,9 +40,9 @@
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
-打包完成后，将生成的 `dist\DoorCtrl` **整个文件夹**拷贝到目标电脑即可。目标电脑无需安装 Python。
+打包完成后，将生成的 `dist` **整个文件夹**拷贝到目标电脑即可。目标电脑无需安装 Python。
 
-> 以下第 4～7 步均在部署目录（如 `dist\DoorCtrl`）中，使用**准备运行服务的 Windows 账号**登录并打开**管理员 PowerShell** 执行。
+> 以下第 4～7 步均在部署目录（如 `dist`）中，使用**准备运行服务的 Windows 账号**登录并打开**管理员 PowerShell** 执行。
 
 ### 第 4 步：修改配置文件 `config.json`
 

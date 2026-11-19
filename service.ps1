@@ -13,7 +13,7 @@ if(-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrat
 }
 $exe=Join-Path $PSScriptRoot 'DoorCtrl.exe'
 if(-not (Test-Path -LiteralPath $exe)){
-    throw '找不到 DoorCtrl.exe。请在有 Python 的电脑上执行 build.ps1，再把生成的 dist\DoorCtrl 整个目录拷到这台电脑。'
+    throw '找不到 DoorCtrl.exe。请在有 Python 的电脑上执行 build.ps1，再把生成的 dist 整个目录拷到这台电脑。'
 }
 
 function Test-DoorCtrlService {
