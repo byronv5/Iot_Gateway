@@ -1,13 +1,14 @@
 # 电动侧翻门局域网控制网关
 
-本项目运行在 Windows 电脑上，作为**电动侧翻门（米家智能开关 `babai.switch.202s`）的局域网控制网关**。
+本项目运行在 Windows 电脑上，作为**电动侧翻门（米家智能开关** `babai.switch.202s`**）的局域网控制网关**。
 
 - **对内**：通过局域网 UDP `54321` 端口与米家开关通信。
 - **对外**：提供局域网 TCP 接口（默认端口 `9753`），同一局域网内的其他程序（如巡检机器人、上位机）发送 JSON 指令即可控制门的开关与状态查询。
 
 > **先分清两个容易混淆的 Token：**
+>
 > 1. **设备 Token（32 位十六进制）**：米家开关硬件自身的密钥，用于电脑控制开关，会被加密存放在 `mi-switch.credential.xml` 中。
-> 2. **`lan.token`（接口调用口令）**：本网关 TCP 接口自身的鉴权口令。第三方程序调用 TCP 接口时，必须在请求参数的 `"token"` 字段中填写 `lan.token` 文件里的内容。
+> 2. `lan.token`**（接口调用口令）**：本网关 TCP 接口自身的鉴权口令。第三方程序调用 TCP 接口时，必须在请求参数的 `"token"` 字段中填写 `lan.token` 文件里的内容。
 
 ---
 
@@ -16,14 +17,14 @@
 ### 第 1 步：安装硬件并连入局域网 WiFi
 
 1. 将电动侧翻门的米家开关（`babai.switch.202s`）完成物理安装并通电。
-2. 用手机「米家 App」将开关配网，连接到**与网关电脑相同的局域网 WiFi**。
+2. 用手机「米家 App」将开关配网，连接到**与网关电脑相同的局域网 WiFi**，能够通过App控制左键开、右键关。
 
 ### 第 2 步：获取开关的 3 项信息
 
-在路由器后台或米家工具（如小米 Token 提取工具）中获取该开关的以下信息，记录备用：
+在路由器后台或米家工具（如小米 token_extractor.exe 提取工具）中获取该开关的以下信息，记录备用：
 
 - **设备 IP**（如 `192.168.1.41`，建议在路由器中为其绑定静态 IP，防止重启后变动）
-- **设备编号 `deviceId`**（纯数字，如 `305869963`）
+- **设备编号** `deviceId`（纯数字，如 `305869963`）
 - **设备 Token**（32 位十六进制字符串，如 `0123456789abcdef0123456789abcdef`）
 
 > 注意：请使用主开关设备的 Token，**不要**使用 `.s2` 或 `.s3` 子设备的 Token。
@@ -113,6 +114,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test_switch.ps1
 ```
 
 脚本会自动读取当前目录的 `lan.token`，并按步骤引导你测试：
+
 1. 自动查询当前开关状态；
 2. 按回车发送**打开**指令（观察门/开关动作）；
 3. 按回车发送**关闭**指令（观察门/开关动作）；
@@ -144,11 +146,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test_switch.ps1 192.16
 #### 1. 查询状态
 
 请求：
+
 ```json
 {"token":"你的lan.token内容","cmd":"status"}
 ```
 
 成功响应：
+
 ```json
 {"ok":true,"ip":"192.168.1.41","switch":"on","exitCode":0}
 ```
@@ -156,11 +160,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test_switch.ps1 192.16
 #### 2. 打开
 
 请求：
+
 ```json
 {"token":"你的lan.token内容","cmd":"switch","value":"on"}
 ```
 
 成功响应：
+
 ```json
 {"ok":true,"action":"on","ip":"192.168.1.41","switch":"on","exitCode":0}
 ```
@@ -168,11 +174,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test_switch.ps1 192.16
 #### 3. 关闭
 
 请求：
+
 ```json
 {"token":"你的lan.token内容","cmd":"switch","value":"off"}
 ```
 
 成功响应：
+
 ```json
 {"ok":true,"action":"off","ip":"192.168.1.41","switch":"off","exitCode":0}
 ```
@@ -195,12 +203,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test_switch.ps1 192.16
   ```json
   {"ok":false,"error":"口令错误"}
   ```
-  其他可能值：`请求不是 JSON`、`请求必须是 JSON 对象`、`cmd 只能是 status 或 switch`、`switch 的 value 只能是 on 或 off`。
 
+  其他可能值：`请求不是 JSON`、`请求必须是 JSON 对象`、`cmd 只能是 status 或 switch`、`switch 的 value 只能是 on 或 off`。
 - 设备超时或 `exitCode` 为 `2`：
   ```json
   {"ok":false,"error":"设备命令超时。设备可能已经执行，先查询 status 再决定是否重试"}
   ```
+
   处理建议：先发一次 `status` 确认实际状态，再决定是否重试。
 
 ---
